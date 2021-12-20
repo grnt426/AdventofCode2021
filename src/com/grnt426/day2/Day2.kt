@@ -1,6 +1,5 @@
 package com.grnt426.day2
 
-import com.grnt426.day1.Day1
 import java.io.File
 
 class Day2 {
