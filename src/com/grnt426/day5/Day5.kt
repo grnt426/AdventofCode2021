@@ -11,7 +11,7 @@ class Day5 {
             /**
              * Solution:
              *
-             * Previous guesses: 18916 (too high)
+             * Previous guesses: 18916 (too high), 7232 (too high)
              */
             println("Part 1 Result: " + Day5().findDangerousOverlap("input/day5/input"))
         }
@@ -42,8 +42,12 @@ class Day5 {
             var start = 0
             var end = 0
             var staticAxis = 1
+            var doNothing = false
 
             when {
+                coord.start[0] != coord.end[0] && coord.start[1] != coord.end[1] -> {
+                    doNothing = true
+                }
                 coord.start[0] < coord.end[0] -> {
                     start = coord.start[0]
                     end = coord.end[0]
@@ -67,10 +71,12 @@ class Day5 {
                 }
             }
 
-            for(i in start..end) {
-                val x = if(staticAxis == 0) coord.start[0] else i
-                val y = if(staticAxis == 1) coord.start[1] else i
-                if(!markedSpots.add("$x,$y")) hits++
+            if(!doNothing) {
+                for(i in start..end) {
+                    val x = if(staticAxis == 0) coord.start[0] else i
+                    val y = if(staticAxis == 1) coord.start[1] else i
+                    if(!markedSpots.add("$x,$y")) hits++
+                }
             }
         }
 
