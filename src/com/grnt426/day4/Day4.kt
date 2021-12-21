@@ -11,7 +11,12 @@ class Day4 {
             /**
              * Solution: 32,844 (board id 73)
              */
-            println("Result: " + Day4().determineWinner("input/day4/input"))
+            println("Part 1 Result: " + Day4().determineWinner("input/day4/input"))
+
+            /**
+             * Solution: 4,920
+             */
+            println("\nPart 2 Result: " + Day4().determineLastWinner("input/day4/input"))
         }
     }
 
@@ -19,7 +24,14 @@ class Day4 {
 
         private val board = ArrayList<ArrayList<Int>>(0)
 
+        // Since a board won't be purged from all entries in the map, it will repeatedly come back up
+        var won = false
+
         fun checkWin(num: Int): Int {
+
+            if(won) {
+                return 1
+            }
 
             var r = 0
             var c = 0
@@ -45,8 +57,8 @@ class Day4 {
 
             // A winner will have no sum on one axis
             if(vSum == -5 || hSum == -5) {
-                println("Winning board $id")
                 total = board.sumOf { it.sumOf { n -> if(n >= 0) n else 0 } }
+                won = true
             }
 
             return total * num
@@ -95,6 +107,53 @@ class Day4 {
                 winningBoard = c.checkWin(num)
                 if(winningBoard >= 0) break
             }
+
+            toDraw++
+        }
+
+        return winningBoard
+    }
+
+    private fun determineLastWinner(s: String): Int {
+        val remainingBoards = HashSet<Board>()
+        val numbersToBoards = HashMap<Int, ArrayList<Board>>()
+        val drawnNumbers = ArrayList<String>()
+        var currentBoard: Board? = null
+        var boardCount = 0
+
+        File(s).forEachLine {
+            if(drawnNumbers.isEmpty())
+                drawnNumbers.addAll(it.split(","))
+            else if(it.isEmpty()){
+                currentBoard = Board(boardCount)
+                remainingBoards.add(currentBoard!!)
+                boardCount++
+            } else {
+                currentBoard?.addRowToBoard(it, numbersToBoards)
+            }
+        }
+
+        var winningBoard = -1
+        var toDraw = 0
+        while(remainingBoards.size > 0) {
+            val num = drawnNumbers[toDraw].toInt()
+            val candidates = numbersToBoards.getOrDefault(num, arrayListOf())
+            val wonBoards = ArrayList<Board>()
+
+            for(c in candidates) {
+                if(c.won) {
+                    wonBoards.add(c)
+                    continue
+                }
+
+                winningBoard = c.checkWin(num)
+                if(winningBoard >= 0) {
+                    remainingBoards.remove(c)
+                    wonBoards.add(c)
+                }
+            }
+
+            candidates.removeAll(wonBoards)
 
             toDraw++
         }
