@@ -15,6 +15,9 @@ class Day3 {
              */
             println("Result: " + Day3().calculatePower("input/day3/input"))
 
+            /**
+             * Solution: 6,085,575
+             */
             println("Result: " + Day3().calculateLifeSupport("input/day3/input"))
         }
     }
@@ -57,49 +60,39 @@ class Day3 {
 
     fun calculateLifeSupport(s: String): Long {
 
-        var bitPattern = IntArray(0)
-
         // a Trie DS would be better here, but the perf won't matter with an input list of 1,000 elements
         // so a simple ArrayList is sufficient
         var oxygenCandidates = arrayListOf<CharArray>()
         var co2Candidates = arrayListOf<CharArray>()
 
         File(s).forEachLine {
-
-            // keep in order as comparisons are easier later against the original strings
-            val bits = it.toCharArray()
             oxygenCandidates.add(it.toCharArray())
             co2Candidates.add(it.toCharArray())
-
-            if(bitPattern.isEmpty())
-                bitPattern = IntArray(bits.size)
-
-            // More zeros means a negative number, and more ones means a positive number
-            // This will correspond to Gamma. Epsilon is the opposite
-            for(i in bits.indices) {
-                bitPattern[i] += if(bits[i].digitToInt() == 1) 1 else -1
-            }
         }
 
-        for(i in bitPattern.indices) {
-            var newOxygenCandidates: ArrayList<CharArray>
-            var newCo2Candidates: ArrayList<CharArray>
-            if(bitPattern[i] >= 0) {
-                newOxygenCandidates = filterCandidates(oxygenCandidates, i, '1')
-                newCo2Candidates = filterCandidates(co2Candidates, i, '0')
-            }
-            else {
-                newOxygenCandidates = filterCandidates(oxygenCandidates, i, '0')
-                newCo2Candidates = filterCandidates(co2Candidates, i, '1')
-            }
+        var index = 0
+        while(oxygenCandidates.size > 1 || co2Candidates.size > 1) {
+            val oxygenOnes = countMajority(oxygenCandidates, index)
+            val co2Ones = countMajority(co2Candidates, index)
 
-            oxygenCandidates = newOxygenCandidates
-            co2Candidates = newCo2Candidates
+            oxygenCandidates = filterCandidates(oxygenCandidates, index, if(oxygenOnes >= 0) '1' else '0')
+            co2Candidates = filterCandidates(co2Candidates, index, if(co2Ones >= 0) '0' else '1')
 
-            if(oxygenCandidates.size == 1 && co2Candidates.size == 1) break
+            index++
         }
 
         return convertBinaryToDecimal(oxygenCandidates[0]) * convertBinaryToDecimal(co2Candidates[0])
+    }
+
+    private fun countMajority(candidates: ArrayList<CharArray>, countIndex: Int): Int {
+        var ones = 0
+
+        for(c in candidates) {
+            if(c[countIndex] == '1') ones++
+            else ones--
+        }
+
+        return ones
     }
 
     private fun filterCandidates(candidates: ArrayList<CharArray>, index: Int, criteria: Char): ArrayList<CharArray> {
