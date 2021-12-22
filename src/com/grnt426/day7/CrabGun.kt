@@ -26,9 +26,9 @@ class CrabGun {
             println("Part 2 Example Result: ${CrabGun().alignCrabs("input/day7/example", CrabGun::calculateExpensiveFuel)}")
 
             /**
-             * Solution:
+             * Solution: 98,363,777
              *
-             * Previous attempts: 109,799,140 (too high) |
+             * Previous attempts: 109,799,140 (too high)
              */
             println("Part 2 Result: ${CrabGun().alignCrabs("input/day7/input", CrabGun::calculateExpensiveFuel)}")
         }
@@ -45,43 +45,27 @@ class CrabGun {
         }
 
         crabs.sort()
-        val median = crabs.size / 2
 
-        // check downwards from the median
-        var candidate = Int.MAX_VALUE - 1
-
-        var index = median
-        while(candidate <= answer) {
-            answer = candidate
-            candidate = calcFunc(this, index, crabs)
-            index--
-        }
-
-        // this is stupid lazy, but just check upwards
-        index = median
-        while(candidate <= answer) {
-            answer = candidate
-            candidate = calcFunc(this, index, crabs)
-            index++
+        for(i in 0 until crabs.last()) {
+            val fuel = calcFunc(this, i, crabs)
+            if(fuel < answer) answer = fuel
         }
 
         return answer
     }
 
-    private fun calculateFuel(index: Int, crabs: ArrayList<Int>): Int {
+    private fun calculateFuel(convergence: Int, crabs: ArrayList<Int>): Int {
         var fuel = 0
-        val convergence = crabs[index]
         for(c in crabs)
             fuel += abs(c - convergence)
         return fuel
     }
 
-    private fun calculateExpensiveFuel(index: Int, crabs: ArrayList<Int>): Int {
+    private fun calculateExpensiveFuel(convergence: Int, crabs: ArrayList<Int>): Int {
         var fuel = 0
-        val convergence = crabs[index]
         for(c in crabs) {
             val delta = abs(c - convergence)
-            fuel += delta * (delta - 1) / 2
+            fuel += delta * (delta + 1) / 2
         }
 
         return fuel
