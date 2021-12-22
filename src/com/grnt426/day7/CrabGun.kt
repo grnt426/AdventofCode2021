@@ -13,21 +13,28 @@ class CrabGun {
             /**
              * Example Solution: 37
              */
-            println("Part 1 Example Result: ${CrabGun().alignCrabs("input/day7/example")}")
+            println("Part 1 Example Result: ${CrabGun().alignCrabs("input/day7/example", CrabGun::calculateFuel)}")
 
             /**
              * Solution: 347,011
              */
-            println("Part 1 Result: ${CrabGun().alignCrabs("input/day7/input")}")
+            println("Part 1 Result: ${CrabGun().alignCrabs("input/day7/input", CrabGun::calculateFuel)}")
+
+            /**
+             * Example Solution: 168
+             */
+            println("Part 2 Example Result: ${CrabGun().alignCrabs("input/day7/example", CrabGun::calculateExpensiveFuel)}")
 
             /**
              * Solution:
+             *
+             * Previous attempts: 109,799,140 (too high) |
              */
-//            println("Part 2 Result: ${CrabGun().alignCrabs("input/day7/input")}")
+            println("Part 2 Result: ${CrabGun().alignCrabs("input/day7/input", CrabGun::calculateExpensiveFuel)}")
         }
     }
 
-    fun alignCrabs(s: String): Int {
+    fun alignCrabs(s: String, calcFunc: (CrabGun, Int, ArrayList<Int>) -> Int): Int {
         var answer = Int.MAX_VALUE
         val crabs = ArrayList<Int>(1000)
 
@@ -46,7 +53,7 @@ class CrabGun {
         var index = median
         while(candidate <= answer) {
             answer = candidate
-            candidate = calculateFuel(index, crabs)
+            candidate = calcFunc(this, index, crabs)
             index--
         }
 
@@ -54,7 +61,7 @@ class CrabGun {
         index = median
         while(candidate <= answer) {
             answer = candidate
-            candidate = calculateFuel(index, crabs)
+            candidate = calcFunc(this, index, crabs)
             index++
         }
 
@@ -66,6 +73,17 @@ class CrabGun {
         val convergence = crabs[index]
         for(c in crabs)
             fuel += abs(c - convergence)
+        return fuel
+    }
+
+    private fun calculateExpensiveFuel(index: Int, crabs: ArrayList<Int>): Int {
+        var fuel = 0
+        val convergence = crabs[index]
+        for(c in crabs) {
+            val delta = abs(c - convergence)
+            fuel += delta * (delta - 1) / 2
+        }
+
         return fuel
     }
 }
