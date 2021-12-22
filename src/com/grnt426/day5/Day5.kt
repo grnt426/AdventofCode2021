@@ -1,6 +1,8 @@
 package com.grnt426.day5
 
 import java.io.File
+import kotlin.math.max
+import kotlin.math.min
 
 class Day5 {
 
@@ -11,14 +13,19 @@ class Day5 {
             /**
              * Solution: 5
              */
-//            println("Part 1 Example Result: " + Day5().findDangerousOverlap("input/day5/example"))
+            println("Part 1 Example Result: " + Day5().findDangerousOverlap("input/day5/example"))
 
             /**
              * Solution: 6687
              *
              * Previous guesses: 18916 (too high), 7232 (too high)
              */
-            println("Part 1 Result: " + Day5().findDangerousOverlap("input/day5/input"))
+//            println("Part 1 Result: " + Day5().findDangerousOverlap("input/day5/input"))
+
+            /**
+             * Solution:
+             */
+//            println("Part 2 Result: " + Day5().findDangerousOverlap("input/day5/input"))
         }
     }
 
@@ -39,7 +46,6 @@ class Day5 {
     private fun findDangerousOverlap(s: String): Int {
         val markedSpots = HashSet<String>()
         val dangerousSpots = HashSet<String>()
-        var nonAxial = 0
 
         File(s).forEachLine {
             val pair = it.split(" -> ")
@@ -48,13 +54,15 @@ class Day5 {
             var start = 0
             var end = 0
             var staticAxis = 1
-            var doNothing = false
-
+            var doubleAxis = false
+            var goingUp = false
 
             when {
                 coord.start[0] != coord.end[0] && coord.start[1] != coord.end[1] -> {
-                    doNothing = true
-                    nonAxial++
+                    doubleAxis = true
+                    start = min(coord.start[0], coord.end[0])
+                    end = max(coord.start[0], coord.end[0])
+                    goingUp = coord.start[1] > coord.end[1]
                 }
                 coord.start[0] < coord.end[0] -> {
                     start = coord.start[0]
@@ -79,16 +87,24 @@ class Day5 {
                 }
             }
 
-            if(!doNothing) {
-                for(i in start..end) {
-                    val x = if(staticAxis == 0) coord.start[0] else i
-                    val y = if(staticAxis == 1) coord.start[1] else i
-                    if(!markedSpots.add("$x,$y")) dangerousSpots.add("$x,$y")
+            var upIndex = 0
+            for(i in start..end) {
+                var x: Int
+                var y: Int
+
+                if(doubleAxis) {
+                    x = i
+                    y = coord.end[1] + (if(goingUp) (upIndex*-1) else upIndex)
+                    upIndex++
                 }
+                else {
+                    x = if (staticAxis == 0) coord.start[0] else i
+                    y = if (staticAxis == 1) coord.start[1] else i
+                }
+
+                if (!markedSpots.add("$x,$y")) dangerousSpots.add("$x,$y")
             }
         }
-
-        println("Non-Axial Lines $nonAxial")
 
         return dangerousSpots.size
     }
